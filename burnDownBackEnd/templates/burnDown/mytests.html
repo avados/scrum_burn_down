@@ -1,0 +1,11 @@
+{% load static %}
+
+
+test
+<form action="{% url 'burnDown:mytests' %}" method="post">
+{% csrf_token %}
+
+{{ myFormSet }}
+
+<input type="submit" value="OK">
+</form>

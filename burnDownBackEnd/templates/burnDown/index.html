@@ -1,0 +1,7 @@
+salut
+<ul>
+    {% for sprint in sprints %}
+        <li><a href="{% url 'burnDown:indexBurnDown' sprint.id %}">{{ sprint }}</a>
+        </li>
+    {% endfor %}
+</ul>

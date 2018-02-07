@@ -1,0 +1,25 @@
+Edit company 
+
+{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+
+
+{% if company %}
+<h1>{{ company.name }}</h1>
+
+<form action="{% url 'burnDown:validate' company.id %}" method="post">
+{% csrf_token %}
+
+{{ form }}
+
+
+
+
+<input type="submit" value="Vote" />
+</form>
+
+{% else %}
+truc
+
+{% endif %}
+
+

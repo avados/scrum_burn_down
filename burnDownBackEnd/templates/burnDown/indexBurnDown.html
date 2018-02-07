@@ -1,0 +1,178 @@
+
+<!doctype html>
+<html>
+
+<head>
+    <title>Line Styles</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script> 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.bundle.min.js"></script>
+    <script src="https://unpkg.com/vue-chartjs/dist/vue-chartjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.20.1/moment.min.js"></script>
+    <style>
+    canvas{
+        -moz-user-select: none;
+        -webkit-user-select: none;
+        -ms-user-select: none;
+    }
+    </style>
+    {% load static %}
+    {% load staticfiles %}
+</head>
+
+<body>
+    <div style="width:100%;">
+        <canvas id="canvas"></canvas>
+    </div>
+    {% if sprint.start_date %}<p><strong>{{ sprint }}</strong></p>
+    {% else %}
+    Nothing to see here
+    {% endif %}
+    <div id="app">
+        {% verbatim %}
+        <div v-for="pbiData in pbisData">
+            <a target="_blank" v-bind:href="pbiData.link">{{ pbiData.localId }}</a> {{ pbiData.title }} - {{ pbiData.storyPoints }} points {{ pbiData.state }}
+        </div>
+        {% endverbatim %}
+    </div>
+    <script>
+        var pbis;
+        //var loadChart = function(self) { $.getJSON('http://localhost:8000/burnDown/pbis/',null, 
+     	var loadChart = function(self) {
+                ///////////////////////////////////////////////////////////
+                //get days for each weekday of sprint
+
+                var startDate = moment("{{sprint.start_date|date:'d m Y'}}",'DD MM YYYY') ;
+                var endDate = moment(" {{sprint.end_date|date:'d m Y'}}",'DD MM YYYY' ) ;
+
+               
+                var days = []
+                if (startDate.isSameOrBefore(endDate));
+                {
+                    currentDate = startDate;
+                    while (currentDate.isSameOrBefore(endDate))
+                    {
+                        if(currentDate.isoWeekday() != 6 && currentDate.isoWeekday() != 7)
+                        {
+                            days.push(currentDate.format('dd DD/MM'))
+                        }
+                        currentDate = currentDate.add(1, 'days');
+                    }  
+                }
+
+                //sum of story points
+                var pbiUniqueDates = [
+                    {% for pbi in pbis %}
+                     "{{pbi.snapshot_date}}",    
+                    {% endfor %}
+                    ]
+                var SPData = [
+                    {% for pbi in pbis %}
+                     "{{pbi.spcount}}",    
+                    {% endfor %}
+                    ]
+
+                var idealSP = [SPData[0]];
+
+                for (var k = 0; k < days.length-1; k++) {
+                    idealSP[k+1] = idealSP[k] - SPData[0]/(days.length-1)
+                }  
+
+                var config = {
+                    type: 'line',
+                    data: {
+                        labels: days,
+                        datasets: [{
+                            label: "Ideal",
+                            fill: false,
+                            backgroundColor: 'rgb(54, 162, 235)',
+                            borderColor: 'rgb(54, 162, 235)',
+                            data: idealSP,
+                        }, {
+                            label: "Reality",
+                            fill: true,
+                            backgroundColor: 'rgb(75, 192, 192)',
+                            borderColor: 'rgb(75, 192, 192)',
+                            borderDash: [5, 5],
+                            data: SPData,
+                            lineTension: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        spanGaps:true,
+                        title:{
+                            display:true,
+                            text:'Burndown {% if sprint.start_date %}{{ sprint }}{% endif %}'
+                        },
+                        tooltips: {
+                            mode: 'index',
+                            intersect: false,
+                        },
+                        hover: {
+                            mode: 'nearest',
+                            intersect: true
+                        },
+                        scales: {
+                            xAxes: [{
+                                display: true,
+                                scaleLabel: {
+                                    display: true,
+                                    labelString: 'Date'
+                                }
+                            }],
+                            yAxes: [{
+                                display: true,
+                                scaleLabel: {
+                                    display: true,
+                                    labelString: 'Story points'
+                                }
+                            }]
+                        },
+                        'onClick' : function(evt, truc2, truc3, truc4, truc5){
+                            var nearestPoint = window.myLine.getElementsAtEventForMode(evt, 'index', { intersect: false });
+                            if(typeof nearestPoint != 'undefined')
+                            {
+                                var dateIndex =  nearestPoint[0]._index;
+                                $.getJSON('http://localhost:8000/burnDown/pbisByDate/{{sprint.id}}',{_date : moment(days[dateIndex] ,'dd DD/MM').format('DD MM YYYY')}, 
+                                    function(data)
+                                    {
+                                        self.pbisData = data;
+                                    }
+                                )
+                                
+                            }
+                        }
+                    }
+                  
+                }
+                  var ctx = document.getElementById("canvas").getContext("2d");
+                window.myLine = new Chart(ctx, config);
+                   
+        
+                
+                ///////////////////////////////////////////////////
+
+                
+        };
+
+        var App = new Vue({
+          el: '#app',
+          data: {
+            pbisData: [] // initialize empty array
+          },
+          mounted() { // when the Vue app is booted up, this is run automatically.
+            var self = this // create a closure to access component in the callback below
+            loadChart(self)
+            
+          }
+        })       
+        
+        /*window.onload = function() {
+            loadChart()
+          };  
+        */
+    </script>
+</body>
+
+</html>

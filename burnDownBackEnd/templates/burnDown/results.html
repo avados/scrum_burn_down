@@ -1,0 +1,9 @@
+<h1>{{ company.name }}</h1>
+
+<ul>
+{% for team in company.team_set.all %}
+    <li>{{ team.name }} -- {{ team.pouet }} vote{{ team.pouet|pluralize }}</li>
+{% endfor %}
+</ul>
+
+<a href="{% url 'burnDown:detail' company.id %}">Vote again?</a>

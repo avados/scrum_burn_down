@@ -1,0 +1,16 @@
+{% load static %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'burnDown/style.css' %}" />
+
+{% if companies_list %}
+    <ul>
+    {% for company in companies_list %}
+        <li><a href="{% url 'burnDown:detail' company.id %}">{{ company.name }}</a>
+        <a href="{% url 'burnDown:edit' company.id %}">EDIT</a>
+        
+        </li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No polls are available.</p>
+{% endif %}

@@ -1,0 +1,13 @@
+<h1>{{ company.name }}</h1>
+
+{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+
+
+<form action="{% url 'burnDown:vote' company.id %}" method="post">
+{% csrf_token %}
+{% for team in company.team_set.all %}
+    <input type="radio" name="team" id="team{{ forloop.counter }}" value="{{ team.id }}" />
+    <label for="team{{ forloop.counter }}">{{ team.name }}</label><br />
+{% endfor %}
+<input type="submit" value="Vote" />
+</form>
