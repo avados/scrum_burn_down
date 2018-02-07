@@ -37,7 +37,6 @@
     </div>
     <script>
         var pbis;
-        //var loadChart = function(self) { $.getJSON('http://localhost:8000/burnDown/pbis/',null, 
      	var loadChart = function(self) {
                 ///////////////////////////////////////////////////////////
                 //get days for each weekday of sprint
@@ -134,7 +133,7 @@
                             if(typeof nearestPoint != 'undefined')
                             {
                                 var dateIndex =  nearestPoint[0]._index;
-                                $.getJSON('http://localhost:8000/burnDown/pbisByDate/{{sprint.id}}',{_date : moment(days[dateIndex] ,'dd DD/MM').format('DD MM YYYY')}, 
+                             	$.getJSON('{% url 'burnDown:pbisByDate' sprint.id %}',{_date : moment(days[dateIndex] ,'dd DD/MM').format('DD MM YYYY')},
                                     function(data)
                                     {
                                         self.pbisData = data;

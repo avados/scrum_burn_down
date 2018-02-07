@@ -24,7 +24,7 @@ class CompanySerializer(serializers.ModelSerializer):
 class PbiSerializer(serializers.ModelSerializer):
     class Meta:
         model = Pbi
-        fields = ('pbitype', 'state', 'storyPoints', 'localId', 'title','link', 'snapshot_date')
+        fields = ('pbitype', 'state', 'storyPoints', 'localId', 'title','link', 'snapshot_date', 'sprint')
 
     def create(self, validated_data):
         """

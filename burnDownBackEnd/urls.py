@@ -23,5 +23,5 @@ urlpatterns = [
 
 	path('pbis/', views.pbi_list, name='pbi_list'),
     #url(r'^pbis/$', views.pbi_list),
-    path('pbisByDate/<int:sprint_id>/', views.pbi_list_date),
+    path('pbisByDate/<int:sprint_id>/', views.pbi_list_date, name='pbisByDate'),
 ]

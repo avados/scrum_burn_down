@@ -25,7 +25,7 @@ SECRET_KEY = '1emtwx_-z-1#gzsbpb)1u8(ic0_f@_h4$^g+5rgg_9j621mjqd'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["avados.net", "localhost"]
 
 
 # Application definition
@@ -116,7 +116,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Canada/Eastern'
 
 USE_I18N = True
 
