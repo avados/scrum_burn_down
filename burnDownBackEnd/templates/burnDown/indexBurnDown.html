@@ -9,12 +9,130 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.bundle.min.js"></script>
     <script src="https://unpkg.com/vue-chartjs/dist/vue-chartjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.20.1/moment.min.js"></script>
+    
+    <script type="text/javascript">
+//////////////////////////////////////////////////////////
+		// register the grid component
+	Vue.component('demo-grid', {
+	  template: '#grid-template',
+	  props: {
+	    data: Array,
+	    columns: Array,
+	    filterKey: String
+	  },
+	  data: function () {
+	    var sortOrders = {}
+	    this.columns.forEach(function (key) {
+	      sortOrders[key] = 1
+	    })
+	    return {
+	      sortKey: '',
+	      sortOrders: sortOrders
+	    }
+	  },
+	  computed: {
+	    filteredData: function () {
+	      var sortKey = this.sortKey
+	      var filterKey = this.filterKey && this.filterKey.toLowerCase()
+	      var order = this.sortOrders[sortKey] || 1
+	      var data = this.data
+	      if (filterKey) {
+	        data = data.filter(function (row) {
+	          return Object.keys(row).some(function (key) {
+	            return String(row[key]).toLowerCase().indexOf(filterKey) > -1
+	          })
+	        })
+	      }
+	      if (sortKey) {
+	        data = data.slice().sort(function (a, b) {
+	          a = a[sortKey]
+	          b = b[sortKey]
+	          return (a === b ? 0 : a > b ? 1 : -1) * order
+	        })
+	      }
+	      return data
+	    }
+	  },
+	  filters: {
+	    capitalize: function (str) {
+	      return str.charAt(0).toUpperCase() + str.slice(1)
+	    }
+	  },
+	  methods: {
+	    sortBy: function (key) {
+	      this.sortKey = key
+	      this.sortOrders[key] = this.sortOrders[key] * -1
+	    }
+	  }
+	})
+	///////////////////////////////////////////////////////////////
+    
+    </script>
     <style>
     canvas{
         -moz-user-select: none;
         -webkit-user-select: none;
         -ms-user-select: none;
     }
+    body {
+  font-family: Helvetica Neue, Arial, sans-serif;
+  font-size: 14px;
+  color: #444;
+}
+
+table {
+  border: 2px solid #42b983;
+  border-radius: 3px;
+  background-color: #fff;
+}
+
+th {
+  background-color: #42b983;
+  color: rgba(255,255,255,0.66);
+  cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+td {
+  background-color: #f9f9f9;
+}
+
+th, td {
+  min-width: 50px;
+  padding: 10px 20px;
+}
+
+th.active {
+  color: #fff;
+}
+
+th.active .arrow {
+  opacity: 1;
+}
+
+.arrow {
+  display: inline-block;
+  vertical-align: middle;
+  width: 0;
+  height: 0;
+  margin-left: 5px;
+  opacity: 0.66;
+}
+
+.arrow.asc {
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-bottom: 4px solid #fff;
+}
+
+.arrow.dsc {
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 4px solid #fff;
+}
     </style>
     {% load static %}
     {% load staticfiles %}
@@ -24,20 +142,72 @@
     <div style="width:100%;">
         <canvas id="canvas"></canvas>
     </div>
-    {% if sprint.start_date %}<p><strong>{{ sprint }}</strong></p>
+    
+    
+    
+    
+    <!-- component template -->
+<script type="text/x-template" id="grid-template">
+{% verbatim %}
+  <table>
+    <thead>
+      <tr>
+        <th v-for="key in columns"
+          @click="sortBy(key)"
+          :class="{ active: sortKey == key }">
+          {{ key | capitalize }}
+          <span class="arrow" :class="sortOrders[key] > 0 ? 'asc' : 'dsc'">
+          </span>
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr v-for="entry in filteredData">
+        <td v-for="key in columns">
+          <span v-html="entry[key]"></span> 
+        </td>
+      </tr>
+    </tbody>
+  </table>
+{% endverbatim %}
+</script>
+
+{% if sprint.start_date %}<p><strong>{{ sprint }}</strong></p>
     {% else %}
     Nothing to see here
     {% endif %}
+
+<!-- demo root element -->
+<div id="demo">
+  <form id="search">
+    Search <input name="query" v-model="searchQuery">
+  </form>
+  <demo-grid
+    :data="gridData"
+    :columns="gridColumns"
+    :filter-key="searchQuery">
+  </demo-grid>
+</div>
+    
+    
+    
+    
+    <!-- 
     <div id="app">
         {% verbatim %}
         <div v-for="pbiData in pbisData">
-            <a target="_blank" v-bind:href="pbiData.link">{{ pbiData.localId }}</a> {{ pbiData.title }} - {{ pbiData.storyPoints }} points {{ pbiData.state }}
+            <a target="_blank" v-bind:href="pbiData.link">{{ pbiData.localId }}</a> {{ pbiData.pbitype }} | {{ pbiData.title }} - {{ pbiData.storyPoints }} points {{ pbiData.state }}
         </div>
         {% endverbatim %}
     </div>
+     -->
+    
+    
     <script>
         var pbis;
      	var loadChart = function(self) {
+     		
+     			
                 ///////////////////////////////////////////////////////////
                 //get days for each weekday of sprint
 
@@ -137,6 +307,22 @@
                                     function(data)
                                     {
                                         self.pbisData = data;
+                                        
+                                        var _tableData =[]
+                                        
+                                        //pbiData.localId }}</a> {{ pbiData.pbitype }} | {{ pbiData.title }} - {{ pbiData.storyPoints }} points {{ pbiData.state }}
+                                        
+                                        for (var k = 0; k < data.length-1; k++) {
+                                        	var _temp = {}
+                                            _temp.ID = '<a target="_blank" href="'+data[k].link+'">'+data[k].localId+'</a>' ;
+                                        	_temp.Title = data[k].title;
+                                        	_temp.Type = data[k].pbitype;
+                                        	_temp.state = data[k].state;
+                                        	_temp.storyPoints = data[k].storyPoints;
+                                        	_tableData.push(_temp)
+                                        }  
+                                        
+                                        demo.$data.gridData = _tableData;
                                     }
                                 )
                                 
@@ -165,7 +351,19 @@
             loadChart(self)
             
           }
-        })       
+        })
+        
+     // bootstrap the demo
+        var demo = new Vue({
+          el: '#demo',
+          data: {
+            searchQuery: '',
+            gridColumns: ['ID', 'Title','state','storyPoints','Type'],
+            gridData: [
+              { }
+            ]
+          }
+        })
         
         /*window.onload = function() {
             loadChart()

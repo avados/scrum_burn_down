@@ -44,7 +44,7 @@ def indexBurnDown(request, sprint_id):
         sprint = Sprint.objects.get(pk=sprint_id)
         #logger.error(sprint)
         #pbis = Pbi.objects.filter(sprint=sprint).order_by('snapshot_date')
-        pbis = Pbi.objects.values('snapshot_date').annotate(spcount=Sum('storyPoints')).filter(sprint=sprint).exclude(state='CLOSED').order_by('snapshot_date')
+        pbis = Pbi.objects.values('snapshot_date').annotate(spcount=Sum('storyPoints')).filter(sprint=sprint,pbitype='US').exclude(state='CLOSED').exclude(state='RESOLVED').order_by('snapshot_date')
         #logger.error(pbis)
         return render(request, 'burnDown/indexBurnDown.html', {
             'sprint' : sprint,
@@ -227,7 +227,7 @@ def pbi_list_date(request, sprint_id):
     sprint = Sprint.objects.get(pk=sprint_id)
     
     if request.method == 'GET':
-        pbis = Pbi.objects.filter(sprint=sprint,snapshot_date=d.strftime("%Y-%m-%d")).order_by('snapshot_date')
+        pbis = Pbi.objects.filter(sprint=sprint,pbitype='US',snapshot_date=d.strftime("%Y-%m-%d")).order_by('-pbitype' ,'localId')
         logger.error(pbis)
 
         serializer = PbiSerializer(pbis, many=True)
