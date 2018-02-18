@@ -22,13 +22,14 @@ class CompanySerializer(serializers.ModelSerializer):
 
 
 class PbiSerializer(serializers.ModelSerializer):
+#     isAddedInSprint = serializers.ReadOnlyField()
     class Meta:
         model = Pbi
         fields = ('pbitype', 'state', 'storyPoints', 'localId', 'title','link', 'snapshot_date', 'sprint')
 
-    def create(self, validated_data):
-        """
-        Create and return a new `company` instance, given the validated data.
-        """
-        return Pbi.objects.create(**validated_data)
+#     def create(self, validated_data):
+#         """
+#         Create and return a new `company` instance, given the validated data.
+#         """
+#         return Pbi.objects.create(**validated_data)
 

@@ -2,6 +2,7 @@ from django.db import models
 from datetime import datetime
 from django.forms import ModelForm
 from django.utils import timezone
+from django.contrib import admin
 # Create your models here.
 
 class Company(models.Model):
@@ -58,5 +59,16 @@ class Pbi(models.Model):
     localId = models.CharField(max_length=2048)
     title = models.CharField(max_length=200,default='')
     link = models.URLField(max_length=500)
+    
+    #def __init__(self):
+#         self.isAddedInSprint = False
+     #   self.title= 'pouet'
+#     @property
+#     def isAddedInSprint(self):
+#         return self._isAddedInSprint
+#     @isAddedInSprint.setter
+#     def isAddedInSprint(self, value):
+#         self._isAddedInSprint = value
+#     
     def __str__(self):
         return self.localId + ' - ' + self.title+ ' / ' + str(self.snapshot_date)

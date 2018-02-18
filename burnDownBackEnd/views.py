@@ -197,7 +197,7 @@ def pbi_list(request):
     if request.method == 'GET':
         pbis = Pbi.objects.all().order_by('snapshot_date')
         serializer = PbiSerializer(pbis, many=True)
-
+        logger.error(serializer.data)
         return JsonResponse(serializer.data, safe=False)
 
     elif request.method == 'POST':
@@ -206,10 +206,16 @@ def pbi_list(request):
         serializer = PbiSerializer(data=data, many=True)
 
         if serializer.is_valid():
-            logger.error("IS VALID")
+            for vData in serializer.validated_data:
+                logger.error(vData)
+                _localId = vData.get("localId",None)
+                _snapshot_date = vData.get("snapshot_date",None)
+                #useless, is_valid should have checked that
+                if ( _localId != None and _localId != '' ) and ( _snapshot_date != None and _snapshot_date != ''):
+                    Pbi.objects.filter(localId=_localId, snapshot_date=_snapshot_date).delete()            
+            
             serializer.save()
-            logger.error("SAVED")
-        
+                
             return HttpResponse(status=200)
         return JsonResponse(serializer.errors, status=400)
 
@@ -228,7 +234,10 @@ def pbi_list_date(request, sprint_id):
     
     if request.method == 'GET':
         pbis = Pbi.objects.filter(sprint=sprint,pbitype='US',snapshot_date=d.strftime("%Y-%m-%d")).order_by('-pbitype' ,'localId')
-        logger.error(pbis)
+        #pouet = Pbi()
+        #logger.error(pouet.isAddedInSprint)
+        #pouet.isAddedInSprint = True
+        #logger.error(pouet.isAddedInSprint)
 
         serializer = PbiSerializer(pbis, many=True)
 

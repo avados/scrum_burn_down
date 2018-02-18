@@ -259,17 +259,24 @@ th.active .arrow {
                             data: idealSP,
                         }, {
                             label: "Reality",
-                            fill: true,
+                            fill: false,
                             backgroundColor: 'rgb(75, 192, 192)',
                             borderColor: 'rgb(75, 192, 192)',
                             borderDash: [5, 5],
                             data: SPData,
-                            lineTension: 0
+                            lineTension: 0,
+                            pointRadius: 10,
+                            pointHoverRadius: 15,
                         }]
                     },
                     options: {
                         responsive: true,
                         spanGaps:true,
+                        elements: {
+                            point: {
+                                pointStyle: 'rectRot'
+                            }
+                        },
                         title:{
                             display:true,
                             text:'Burndown {% if sprint.start_date %}{{ sprint }}{% endif %}'
