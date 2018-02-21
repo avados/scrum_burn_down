@@ -53,12 +53,14 @@ class Pbi(models.Model):
     created_date = models.DateTimeField(auto_now_add=True)
     modified_date = models.DateTimeField(auto_now=True)
     snapshot_date = models.DateField('snapshot date', default=datetime.now)
-    pbitype =  models.CharField(max_length=20, choices=PBI_TYPES)
+    pbi_type =  models.CharField(max_length=20, choices=PBI_TYPES)
     state =  models.CharField(max_length=20, choices=PBI_STATES)
-    storyPoints = models.PositiveIntegerField(default=0)
-    localId = models.CharField(max_length=2048)
+    story_points = models.PositiveIntegerField(default=0)
+    local_id = models.CharField(max_length=2048)
     title = models.CharField(max_length=200,default='')
     link = models.URLField(max_length=500)
+    area = models.CharField(max_length=2048,default='')
+    is_interruption = models.BooleanField(default=False)
     
     #def __init__(self):
 #         self.isAddedInSprint = False
@@ -71,4 +73,4 @@ class Pbi(models.Model):
 #         self._isAddedInSprint = value
 #     
     def __str__(self):
-        return self.localId + ' - ' + self.title+ ' / ' + str(self.snapshot_date)
+        return self.local_id + ' - ' + self.title+ ' / ' + str(self.snapshot_date)

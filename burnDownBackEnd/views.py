@@ -44,7 +44,7 @@ def indexBurnDown(request, sprint_id):
         sprint = Sprint.objects.get(pk=sprint_id)
         #logger.error(sprint)
         #pbis = Pbi.objects.filter(sprint=sprint).order_by('snapshot_date')
-        pbis = Pbi.objects.values('snapshot_date').annotate(spcount=Sum('storyPoints')).filter(sprint=sprint,pbitype='US').exclude(state='CLOSED').exclude(state='RESOLVED').order_by('snapshot_date')
+        pbis = Pbi.objects.values('snapshot_date').annotate(spcount=Sum('story_points')).filter(sprint=sprint,pbi_type='US').exclude(state='CLOSED').exclude(state='RESOLVED').order_by('snapshot_date')
         #logger.error(pbis)
         return render(request, 'burnDown/indexBurnDown.html', {
             'sprint' : sprint,
@@ -197,7 +197,7 @@ def pbi_list(request):
     if request.method == 'GET':
         pbis = Pbi.objects.all().order_by('snapshot_date')
         serializer = PbiSerializer(pbis, many=True)
-        logger.error(serializer.data)
+        #logger.error(serializer.data)
         return JsonResponse(serializer.data, safe=False)
 
     elif request.method == 'POST':
@@ -207,12 +207,12 @@ def pbi_list(request):
 
         if serializer.is_valid():
             for vData in serializer.validated_data:
-                logger.error(vData)
-                _localId = vData.get("localId",None)
+                #logger.error(vData)
+                _local_id = vData.get("local_id",None)
                 _snapshot_date = vData.get("snapshot_date",None)
                 #useless, is_valid should have checked that
-                if ( _localId != None and _localId != '' ) and ( _snapshot_date != None and _snapshot_date != ''):
-                    Pbi.objects.filter(localId=_localId, snapshot_date=_snapshot_date).delete()            
+                if ( _local_id != None and _local_id != '' ) and ( _snapshot_date != None and _snapshot_date != ''):
+                    Pbi.objects.filter(local_id=_local_id, snapshot_date=_snapshot_date).delete()            
             
             serializer.save()
                 
@@ -233,7 +233,7 @@ def pbi_list_date(request, sprint_id):
     sprint = Sprint.objects.get(pk=sprint_id)
     
     if request.method == 'GET':
-        pbis = Pbi.objects.filter(sprint=sprint,pbitype='US',snapshot_date=d.strftime("%Y-%m-%d")).order_by('-pbitype' ,'localId')
+        pbis = Pbi.objects.filter(sprint=sprint,pbi_type='US',snapshot_date=d.strftime("%Y-%m-%d")).order_by('-pbi_type' ,'local_id')
         #pouet = Pbi()
         #logger.error(pouet.isAddedInSprint)
         #pouet.isAddedInSprint = True

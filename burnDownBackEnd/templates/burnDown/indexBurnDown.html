@@ -139,6 +139,9 @@ th.active .arrow {
 </head>
 
 <body>
+
+<a href="{% url 'burnDown:index' %}">Back to home</a>
+
     <div style="width:100%;">
         <canvas id="canvas"></canvas>
     </div>
@@ -172,11 +175,25 @@ th.active .arrow {
 {% endverbatim %}
 </script>
 
+
 {% if sprint.start_date %}<p><strong>{{ sprint }}</strong></p>
     {% else %}
     Nothing to see here
     {% endif %}
 
+
+    <div id="app">
+        {% verbatim %}
+        <!-- <div v-for="pbiData in pbisData">
+            <a target="_blank" v-bind:href="pbiData.link">{{ pbiData.local_id }}</a> {{ pbiData.pbi_type }} | {{ pbiData.title }} - {{ pbiData.story_points }} points {{ pbiData.state }} 
+            
+        </div>-->
+        <div v-if="textData.total_day != 0">
+        	On {{ textData.date}},  {{ textData.done_count}} user story are complete, over {{textData.total_count}} ({{ textData.done_day}} / {{ textData.total_day}} SP)  <span v-if="textData.interruption_day  != 0">{{textData.interruption_count }} interruptions in this sprint (for {{textData.interruption_day }} SP)</span>
+        </div>
+        {% endverbatim %}
+    </div>
+    <p>
 <!-- demo root element -->
 <div id="demo">
   <form id="search">
@@ -191,16 +208,7 @@ th.active .arrow {
     
     
     
-    
-    <!-- 
-    <div id="app">
-        {% verbatim %}
-        <div v-for="pbiData in pbisData">
-            <a target="_blank" v-bind:href="pbiData.link">{{ pbiData.localId }}</a> {{ pbiData.pbitype }} | {{ pbiData.title }} - {{ pbiData.storyPoints }} points {{ pbiData.state }}
-        </div>
-        {% endverbatim %}
-    </div>
-     -->
+
     
     
     <script>
@@ -316,27 +324,56 @@ th.active .arrow {
                                         self.pbisData = data;
                                         
                                         var _tableData =[]
-                                        
-                                        //pbiData.localId }}</a> {{ pbiData.pbitype }} | {{ pbiData.title }} - {{ pbiData.storyPoints }} points {{ pbiData.state }}
+                                        self.textData.total_day = 0;
+                                        self.textData.total_count = 0;
+                                        self.textData.done_day = 0;
+                                        self.textData.done_count = 0;
+                                        self.textData.interruption_day = 0;
+                                        self.textData.interruption_count = 0;
+                                        //pbiData.local_id }}</a> {{ pbiData.pbi_type }} | {{ pbiData.title }} - {{ pbiData.story_points }} points {{ pbiData.state }}
                                         
                                         for (var k = 0; k < data.length-1; k++) {
+                                        	//fulfill the table
                                         	var _temp = {}
-                                            _temp.ID = '<a target="_blank" href="'+data[k].link+'">'+data[k].localId+'</a>' ;
-                                        	_temp.Title = data[k].title;
-                                        	_temp.Type = data[k].pbitype;
+                                            _temp.ID = '<a target="_blank" href="'+data[k].link+'">'+data[k].local_id+'</a>' ;
+                                            
+                                            if(data[k].is_interruption)
+                                            {
+                                            	_temp.Title = '<span style="color:red">'+data[k].title+'; Added in the sprint<span>';                                           	
+                                            }
+                                            else
+                                           	{
+                                            	_temp.Title = data[k].title;
+                                           	}
+                                        	
+                                        	_temp.Type = data[k].pbi_type;
                                         	_temp.state = data[k].state;
-                                        	_temp.storyPoints = data[k].storyPoints;
+                                        	_temp.story_points = data[k].story_points;
                                         	_tableData.push(_temp)
+                                        	
+                                        	//get our stats
+                                        	self.textData.total_day += data[k].story_points;
+                                        	self.textData.total_count +=1;
+                                        	self.textData.date = data[k].snapshot_date
+                                        	if(data[k].state == 'RESOLVED' || data[k].state == 'CLOSED')
+                                       		{
+                                        		self.textData.done_count += 1;
+                                        		self.textData.done_day += data[k].story_points;
+                                       		}
+                                        	if(data[k].is_interruption)
+                                       		{
+                                        		self.textData.interruption_count += 1;
+                                        		self.textData.interruption_day += data[k].story_points;
+                                       		}
+                                        	
                                         }  
                                         
                                         demo.$data.gridData = _tableData;
                                     }
                                 )
-                                
                             }
                         }
                     }
-                  
                 }
                   var ctx = document.getElementById("canvas").getContext("2d");
                 window.myLine = new Chart(ctx, config);
@@ -351,7 +388,14 @@ th.active .arrow {
         var App = new Vue({
           el: '#app',
           data: {
-            pbisData: [] // initialize empty array
+            pbisData: [], // initialize empty array
+            textData: { 
+            	'total_day': 0,
+            	'done_day': 0,
+            	'interruption_day': 0,
+            	'total_count' : 0
+            },
+            
           },
           mounted() { // when the Vue app is booted up, this is run automatically.
             var self = this // create a closure to access component in the callback below
@@ -365,7 +409,7 @@ th.active .arrow {
           el: '#demo',
           data: {
             searchQuery: '',
-            gridColumns: ['ID', 'Title','state','storyPoints','Type'],
+            gridColumns: ['ID', 'story_points', 'Title','state','Type'],
             gridData: [
               { }
             ]

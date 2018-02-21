@@ -25,7 +25,7 @@ class PbiSerializer(serializers.ModelSerializer):
 #     isAddedInSprint = serializers.ReadOnlyField()
     class Meta:
         model = Pbi
-        fields = ('pbitype', 'state', 'storyPoints', 'localId', 'title','link', 'snapshot_date', 'sprint')
+        fields = ('pbi_type', 'state', 'story_points', 'local_id', 'title','link', 'snapshot_date', 'sprint')
 
 #     def create(self, validated_data):
 #         """

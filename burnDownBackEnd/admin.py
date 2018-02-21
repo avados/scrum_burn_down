@@ -13,6 +13,7 @@ class PbiAdmin(admin.ModelAdmin):
 #     list_display = ('title' )
     list_filter = (
         ('sprint'),
+        ('snapshot_date'),
     )
     
     
