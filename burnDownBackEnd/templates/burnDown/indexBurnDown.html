@@ -251,7 +251,7 @@ th.active .arrow {
 
                 var idealSP = [SPData[0]];
 
-                for (var k = 0; k < days.length-1; k++) {
+                for (var k = 0; k <= days.length-1; k++) {
                     idealSP[k+1] = idealSP[k] - SPData[0]/(days.length-1)
                 }  
 
@@ -332,7 +332,7 @@ th.active .arrow {
                                         self.textData.interruption_count = 0;
                                         //pbiData.local_id }}</a> {{ pbiData.pbi_type }} | {{ pbiData.title }} - {{ pbiData.story_points }} points {{ pbiData.state }}
                                         
-                                        for (var k = 0; k < data.length-1; k++) {
+                                        for (var k = 0; k <= data.length-1; k++) {
                                         	//fulfill the table
                                         	var _temp = {}
                                             _temp.ID = '<a target="_blank" href="'+data[k].link+'">'+data[k].local_id+'</a>' ;
