@@ -55,7 +55,7 @@ class Pbi(models.Model):
     snapshot_date = models.DateField('snapshot date', default=datetime.now)
     pbi_type =  models.CharField(max_length=20, choices=PBI_TYPES)
     state =  models.CharField(max_length=20, choices=PBI_STATES)
-    story_points = models.PositiveIntegerField(default=0)
+    story_points = models.FloatField(default=0)
     local_id = models.CharField(max_length=2048)
     title = models.CharField(max_length=200,default='')
     link = models.URLField(max_length=500)
