@@ -12,6 +12,7 @@ from rest_framework.parsers import JSONParser
 from .serializers import CompanySerializer, PbiSerializer
 import logging, datetime
 from datetime import date, datetime, time
+from rest_framework.decorators import api_view
 
 # Create your views here.
 
@@ -190,15 +191,15 @@ def company_detail(request, pk):
 
 #csrf_exempt should be renoved, add an aythent token
 @csrf_exempt
+@api_view(['GET', 'POST'])
 def pbi_list(request):
     """
     List all pbis, or create a new pbis.
     """
     if request.method == 'GET':
-        pbis = Pbi.objects.all().order_by('snapshot_date')
-        serializer = PbiSerializer(pbis, many=True)
+        serializer = PbiSerializer(Pbi.get_all_pbis(), many=True)
         #logger.error(serializer.data)
-        return JsonResponse(serializer.data, safe=False)
+        return JsonResponse(serializer.data , safe=False)
 
     elif request.method == 'POST':
         data = JSONParser().parse(request)
@@ -206,6 +207,7 @@ def pbi_list(request):
         serializer = PbiSerializer(data=data, many=True)
 
         if serializer.is_valid():
+#             Pbi.updateSerializedPbis(serializer.validated_data)
             for vData in serializer.validated_data:
                 #logger.error(vData)
                 _local_id = vData.get("local_id",None)
@@ -213,11 +215,11 @@ def pbi_list(request):
                 #useless, is_valid should have checked that
                 if ( _local_id != None and _local_id != '' ) and ( _snapshot_date != None and _snapshot_date != ''):
                     Pbi.objects.filter(local_id=_local_id, snapshot_date=_snapshot_date).delete()            
-            
+              
             serializer.save()
                 
             return HttpResponse(status=200)
-        return JsonResponse(serializer.errors, status=400)
+        return JsonResponse(serializer.errors, status=400, safe=False)
 
 
 #csrf_exempt should be renoved, add an aythent token
@@ -234,19 +236,14 @@ def pbi_list_date(request, sprint_id):
     
     if request.method == 'GET':
         pbis = Pbi.objects.filter(sprint=sprint,pbi_type='US',snapshot_date=d.strftime("%Y-%m-%d")).order_by('-pbi_type' ,'local_id')
-        #pouet = Pbi()
-        #logger.error(pouet.isAddedInSprint)
-        #pouet.isAddedInSprint = True
-        #logger.error(pouet.isAddedInSprint)
-
-        serializer = PbiSerializer(pbis, many=True)
-
+        serializer = PbiSerializer(data=pbis, many=True)
+        serializer.is_valid()
         return JsonResponse(serializer.data, safe=False)
 
-    elif request.method == 'POST':
-        data = JSONParser().parse(request)
-        serializer = PbiSerializer(data=data)
-        if serializer.is_valid():
-            serializer.save()
-            return JsonResponse(serializer.data, status=201)
-        return JsonResponse(serializer.errors, status=400)
+#     elif request.method == 'POST':
+#         data = JSONParser().parse(request)
+#         serializer = PbiSerializer(data=data)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return JsonResponse(serializer.data, status=201)
+    return JsonResponse(serializer.errors, status=400)

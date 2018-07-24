@@ -21,7 +21,9 @@ urlpatterns = [
     url(r'^companies/$', views.companies_list),
     url(r'^companies/(?P<pk>[0-9]+)/$', views.company_detail),
 
-	path('pbis/', views.pbi_list, name='pbi_list'),
+# 	url(r'pbis/', views.pbi_list, name='pbi_list'),
+ 	path('pbis/', views.pbi_list, name='pbi_list'),
     #url(r'^pbis/$', views.pbi_list),
+    #path is newer than url in djangi, prefer is
     path('pbisByDate/<int:sprint_id>/', views.pbi_list_date, name='pbisByDate'),
 ]
