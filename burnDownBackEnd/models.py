@@ -112,9 +112,11 @@ class Pbi(models.Model):
                     if sprintForm.is_valid():
                         newSprint = sprintForm.save()
                         self.sprint = newSprint  
+                        #f"A new sprint has been created for team {sprt.team}, sprint id: {self.sprint.id}, start date: {self.sprint.start_date}, end date: {self.sprint.end_date}",
                         send_mail(
                             'New sprint automatically created',
-                            f"A new sprint has been created for team {sprt.team}, sprint id: {self.sprint.id}, start date: {self.sprint.start_date}, end date: {self.sprint.end_date}",
+                            
+                            "A new sprint has been created for team "+ str(sprt.team)+", sprint id: "+str(self.sprint.id)+", start date: "+str(self.sprint.start_date)+", end date: "+str(self.sprint.end_date),
                             settings.EMAIL_HOST_USER,
                             settings.EMAIL_AVADOS_TO_EMAIL,
                             fail_silently=False,
