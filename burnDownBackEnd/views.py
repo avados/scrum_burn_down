@@ -11,7 +11,7 @@ from rest_framework.renderers import JSONRenderer
 from rest_framework.parsers import JSONParser
 from .serializers import CompanySerializer, PbiSerializer
 import logging, datetime
-from datetime import date, datetime, time
+from datetime import date, datetime, time, timedelta
 from rest_framework.decorators import api_view
 
 # Create your views here.
@@ -45,7 +45,28 @@ def indexBurnDown(request, sprint_id):
         sprint = Sprint.objects.get(pk=sprint_id)
         #logger.error(sprint)
         #pbis = Pbi.objects.filter(sprint=sprint).order_by('snapshot_date')
-        pbis = Pbi.objects.values('snapshot_date').annotate(spcount=Sum('story_points')).filter(sprint=sprint,pbi_type='US').exclude(state='CLOSED').exclude(state='RESOLVED').order_by('snapshot_date')
+        _pbis = Pbi.objects.values('snapshot_date').annotate(spcount=Sum('story_points')).filter(sprint=sprint,pbi_type='US').exclude(state='CLOSED').exclude(state='RESOLVED').order_by('snapshot_date')
+        pbis = list(_pbis)
+        delta = sprint.end_date - sprint.start_date
+        
+        for i in range(delta.days + 1):
+            print(sprint.start_date + timedelta(i))
+            print(i)
+            if (sprint.start_date + timedelta(i)).weekday() < 5 :
+                if i >= len(pbis):
+                    break
+                if pbis[i]['snapshot_date'] == sprint.start_date + timedelta(i):
+                    continue
+                elif i > 0:
+                    pbis.insert(i, {'snapshot_date': sprint.start_date + timedelta(i), 'spcount': 'null'})
+                else:
+                    pbis.insert(i, {'snapshot_date': sprint.start_date + timedelta(i), 'spcount': 0})
+    
+#         for pbi in pbis :
+#             if pbi['snapshot_date'] == sprint.start_date:
+#                 logger.debug('pouet')
+            
+            
         #logger.error(pbis)
         return render(request, 'burnDown/indexBurnDown.html', {
             'sprint' : sprint,

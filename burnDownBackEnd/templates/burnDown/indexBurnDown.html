@@ -1,12 +1,15 @@
-
 <!doctype html>
 <html>
 
 <head>
+	 {% load static %}
+    {% load staticfiles %}
+    {% load static from staticfiles %}
     <title>Line Styles</title>
     <script src="https://cdn.jsdelivr.net/npm/vue"></script>
          <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script> 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.bundle.min.js"></script>
+   <!--  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.bundle.min.js"></script> -->
+   <script src="{% static 'burnDown/Chart.bundle.min.js'  %}"></script> 
     <script src="https://unpkg.com/vue-chartjs/dist/vue-chartjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.20.1/moment.min.js"></script>
     
@@ -134,8 +137,7 @@ th.active .arrow {
   border-top: 4px solid #fff;
 }
     </style>
-    {% load static %}
-    {% load staticfiles %}
+   
 </head>
 
 <body>

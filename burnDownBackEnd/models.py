@@ -104,6 +104,8 @@ class Pbi(models.Model):
                 sprint = Sprint.objects.filter(start_date__lte=self.snapshot_date, end_date__gte=self.snapshot_date, team__id=sprt.team.id)
                 if sprint != None and sprint.count() == 1:
                     self.sprint = sprint[0]
+                elif sprint.count() > 1:
+                    raise ValidationError('More than one active sprints at the same time for the same team')
                 else:
                     #create new sprint
                     #import here otherwise we will have an issue 

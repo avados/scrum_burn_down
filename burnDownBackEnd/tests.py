@@ -174,5 +174,29 @@ class PbiTestCase(APITestCase):
         serializer = PbiSerializer(pbis, many=True)
         self.assertEqual(response.json(), serializer.data)
         
+# TEST COMMANDS
+from io import StringIO
+from django.core.management import call_command
+from django.test import TestCase
+
+class CommandTest(TestCase):
+    def setUp(self):
+        comp = Company.objects.create(name="companyPbiTest")
+        team1 = Team.objects.create(name="team1", pouet = 444, company = comp)
+        team2 = Team.objects.create(name="team2", pouet = 444, company = comp)
+        sprint = Sprint.objects.create(goal = 'goalPbi', team = team1, start_date = timezone.now() , end_date = timezone.now() + timedelta(days=7) )
+        sprint2 = Sprint.objects.create(goal = 'goalPbi', team = team1, start_date = timezone.now() , end_date = timezone.now() + timedelta(days=7) )
+        
+        pbi1 = Pbi.objects.create(sprint = sprint, pbi_type = "US", state = "NEW", story_points = 5, local_id = "one", title ="title 1", link = "http://link1.com", area= "area1")
+        pbi2 = Pbi.objects.create(sprint = sprint, pbi_type = "US", state = "NEW", story_points = 5, local_id = "two", title ="title 2", link = "http://link2.com", area= "area1")
+
+        pbit2 = PbiForm(data={'sprint':sprint2.id, 'snapshot_date': timezone.now() - + timedelta(days=1) , 'pbi_type':'US', 'state':'NEW','story_points':0, 'local_id':'zero','title':'pbiForm','link':'http://pbiform.com','area':'forms','is_interruption':False})
     
+    def test_command_output(self):
+        out = StringIO()
+        call_command('InactivityEmail', stdout=out)
+        if datetime.today().weekday() < 5 :
+            self.assertIn('Successfully checked activity', out.getvalue())
+            self.assertEqual(len(mail.outbox), 1)
+        
         
