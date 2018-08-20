@@ -20,12 +20,12 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '1emtwx_-z-1#gzsbpb)1u8(ic0_f@_h4$^g+5rgg_9j621mjqd'
+SECRET_KEY = ''
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["avados.net", "localhost"]
+ALLOWED_HOSTS = [ "localhost","testserver"]
 
 
 # Application definition
@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'channels',
 ]
 
 MIDDLEWARE = [
@@ -129,8 +130,21 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
 
 STATIC_URL = '/static/'
-
+STATIC_ROOT  = os.path.join(BASE_DIR, "static_root")
+# 'C:/Dev/myBurnDown/burnDownProject/static_root'
 
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "static"),
+    os.path.join(BASE_DIR, "burnDownBackEnd/static"),
 ]
+
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = ''
+EMAIL_USE_SSL = True
+EMAIL_PORT = 465
+EMAIL_HOST_USER = ''
+EMAIL_HOST_PASSWORD = ''
+EMAIL_AVADOS_TO_EMAIL = ['']
+ADMIN = [('Moi', '')]
+SERVER_EMAIL =  ''
+ASGI_APPLICATION = "burnDownProject.routing.application"
