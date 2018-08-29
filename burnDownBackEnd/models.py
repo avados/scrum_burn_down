@@ -94,7 +94,7 @@ class Pbi(models.Model):
              
         if self.sprint == None:
             raise ValidationError('Sprint cannot be null')
-        
+        logger.info(f"new PBI with sprint : {self.sprint} ")
         sprt = Sprint.objects.get(id=self.sprint.id)
         if sprt != None:
 #             si la date du pbi est en dehors du sprint
@@ -103,6 +103,7 @@ class Pbi(models.Model):
                 #if pbi is outside this sprint, check if it exists a sprint with those dates/teams
                 sprint = Sprint.objects.filter(start_date__lte=self.snapshot_date, end_date__gte=self.snapshot_date, team__id=sprt.team.id)
                 if sprint != None and sprint.count() == 1:
+                    logger.info(f"Updating PBI : from sprint {self.sprint} to {sprint[0]}")
                     self.sprint = sprint[0]
                 elif sprint.count() > 1:
                     raise ValidationError('More than one active sprints at the same time for the same team')
@@ -115,6 +116,7 @@ class Pbi(models.Model):
                         newSprint = sprintForm.save()
                         self.sprint = newSprint  
                         #f"A new sprint has been created for team {sprt.team}, sprint id: {self.sprint.id}, start date: {self.sprint.start_date}, end date: {self.sprint.end_date}",
+                        logger.info(f"Updating PBI : new sprint created id: {newSprint.id} {newSprint}")
                         send_mail(
                             'New sprint automatically created',
                             
