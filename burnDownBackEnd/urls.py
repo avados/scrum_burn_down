@@ -11,6 +11,7 @@ urlpatterns = [
 	path('<int:company_id>/validate/', views.ValidateView, name='validate'),
 	# ex: /polls/
     path('', views.indexSprints, name='index'),
+    
     # ex: /polls/5/
     path('<int:pk>/', views.DetailView.as_view(), name='detail'),
     # ex: /polls/5/results/
@@ -26,4 +27,5 @@ urlpatterns = [
     #url(r'^pbis/$', views.pbi_list),
     #path is newer than url in djangi, prefer is
     path('pbisByDate/<int:sprint_id>/', views.pbi_list_date, name='pbisByDate'),
+    
 ]
