@@ -13,7 +13,7 @@ from .serializers import CompanySerializer, PbiSerializer
 import logging, datetime
 from datetime import date, datetime, time, timedelta
 from rest_framework.decorators import api_view
-
+from .forms import SprintForm, PbiForm
 # Create your views here.
 
 logger = logging.getLogger(__name__)
@@ -223,24 +223,29 @@ def pbi_list(request):
         return JsonResponse(serializer.data , safe=False)
 
     elif request.method == 'POST':
-        data = JSONParser().parse(request)
-        #many=true implies we ALWAYS have an arry
-        serializer = PbiSerializer(data=data, many=True)
-
-        if serializer.is_valid():
-#             Pbi.updateSerializedPbis(serializer.validated_data)
-            for vData in serializer.validated_data:
-                #logger.error(vData)
-                _local_id = vData.get("local_id",None)
-                _snapshot_date = vData.get("snapshot_date",None)
-                #useless, is_valid should have checked that
-                if ( _local_id != None and _local_id != '' ) and ( _snapshot_date != None and _snapshot_date != ''):
-                    Pbi.objects.filter(local_id=_local_id, snapshot_date=_snapshot_date).delete()            
-              
-            serializer.save()
-                
-            return HttpResponse(status=200)
-        return JsonResponse(serializer.errors, status=400, safe=False)
+        try:
+            data = JSONParser().parse(request)
+            #many=true implies we ALWAYS have an arry
+            serializer = PbiSerializer(data=data, many=True)
+    
+            if serializer.is_valid():
+    #             Pbi.updateSerializedPbis(serializer.validated_data)
+                for vData in serializer.validated_data:
+                    #logger.error(vData)
+                    _local_id = vData.get("local_id",None)
+                    _snapshot_date = vData.get("snapshot_date",None)
+                    #useless, is_valid should have checked that
+                    #TODO move that to validation
+                    #TODO do not delete, update
+                    if ( _local_id != None and _local_id != '' ) and ( _snapshot_date != None and _snapshot_date != ''):
+                        Pbi.objects.filter(local_id=_local_id, snapshot_date=_snapshot_date).delete()            
+                  
+                serializer.save()
+                    
+                return HttpResponse(status=200)
+        except Exception as e:
+            logger.error("EXCEPTION while batch insert pbis"+ e)
+            return JsonResponse(e, status=400, safe=False)
 
 
 #csrf_exempt should be renoved, add an aythent token
