@@ -47,21 +47,29 @@ def indexBurnDown(request, sprint_id):
         #pbis = Pbi.objects.filter(sprint=sprint).order_by('snapshot_date')
         _pbis = Pbi.objects.values('snapshot_date').annotate(spcount=Sum('story_points')).filter(sprint=sprint,pbi_type='US').exclude(state='CLOSED').exclude(state='RESOLVED').order_by('snapshot_date')
         pbis = list(_pbis)
-        delta = sprint.end_date - sprint.start_date
         
+        #TODO the following script seems to be broken; try if (sprint.start_date + timedelta(i)).weekday() >= 5 : 
+        delta = sprint.end_date - sprint.start_date
+        pbisIndex = 0
         for i in range(delta.days + 1):
             print(sprint.start_date + timedelta(i))
             print(i)
+            print(pbisIndex) 
             if (sprint.start_date + timedelta(i)).weekday() < 5 :
                 if i >= len(pbis):
                     break
-                if pbis[i]['snapshot_date'] == sprint.start_date + timedelta(i):
+                if pbis[pbisIndex]['snapshot_date'] == sprint.start_date + timedelta(i):
+                    pbisIndex = pbisIndex +1
                     continue
-                elif i > 0:
-                    pbis.insert(i, {'snapshot_date': sprint.start_date + timedelta(i), 'spcount': 'null'})
-                else:
-                    pbis.insert(i, {'snapshot_date': sprint.start_date + timedelta(i), 'spcount': 0})
-    
+                elif pbis[pbisIndex]['snapshot_date'] != sprint.start_date + timedelta(i):
+                    pbis.insert(pbisIndex, {'snapshot_date': sprint.start_date + timedelta(i), 'spcount': 'null'})
+                    
+#                 elif i > 0:
+# #                     pbis[i] = {'snapshot_date': sprint.start_date + timedelta(i), 'spcount': 'null'}
+#                     pbis.insert(pbisIndex, {'snapshot_date': sprint.start_date + timedelta(i), 'spcount': 'null'})
+#                 else:
+#                     pbis.insert(pbisIndex, {'snapshot_date': sprint.start_date + timedelta(i), 'spcount': 0})
+                pbisIndex = pbisIndex +1
 #         for pbi in pbis :
 #             if pbi['snapshot_date'] == sprint.start_date:
 #                 logger.debug('pouet')
