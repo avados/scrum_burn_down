@@ -52,9 +52,6 @@ def indexBurnDown(request, sprint_id):
         delta = sprint.end_date - sprint.start_date
         pbisIndex = 0
         for i in range(delta.days + 1):
-            print(sprint.start_date + timedelta(i))
-            print(i)
-            print(pbisIndex) 
             if (sprint.start_date + timedelta(i)).weekday() < 5 :
                 if i >= len(pbis):
                     break

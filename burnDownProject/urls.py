@@ -15,9 +15,10 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import include, path
-
+from burnDownBackEnd import views
 urlpatterns = [
     path('burnDown/', include('burnDownBackEnd.urls')),
     path('admin/', admin.site.urls),
-    path('', include('burnDownBackEnd.urls')),
+    #path('', include('burnDownBackEnd.urls')),
+    path('', views.indexSprints, name='pbi_list'),
 ]
