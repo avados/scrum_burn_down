@@ -3,7 +3,9 @@ from django.forms.models import model_to_dict
 from .models import Company, Pbi, Sprint
 from django.utils import timezone
 from datetime import datetime, timedelta, date
+from django.core.mail import send_mail
 import logging
+from django.conf import settings
 
 logger = logging.getLogger(__name__)
 
@@ -34,6 +36,7 @@ class PbiSerializer(serializers.ModelSerializer):
         fields = ('pbi_type', 'state', 'story_points', 'local_id', 'title','link', 'snapshot_date', 'sprint','is_interruption', 'area')
     
     #validate otherwize it is not clean 
+    #TODO use mixin to have same validation a smodel : https://stackoverflow.com/questions/32921956/where-should-i-do-the-django-validations-for-objects-and-fields
     def validate(self, data):
 #         instance = Pbi(**data)
 #         instance.clean()
@@ -71,7 +74,7 @@ class PbiSerializer(serializers.ModelSerializer):
                         send_mail(
                             'New sprint automatically created',
                             
-                            "A new sprint has been created for team "+ str(sprt.team)+", sprint id: "+str(data['sprint'].id)+", start date: "+str(data['sprint.start_date'])+", end date: "+str(data['sprint.end_date']),
+                            "A new sprint has been created for team "+ str(sprt.team)+", sprint id: "+str(data['sprint'].id)+", start date: "+str(data['sprint'].start_date)+", end date: "+str(data['sprint'].end_date),
                             settings.EMAIL_HOST_USER,
                             settings.EMAIL_AVADOS_TO_EMAIL,
                             fail_silently=False,

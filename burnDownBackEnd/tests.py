@@ -129,10 +129,35 @@ class PbiTestCase(APITestCase):
         team = Team.objects.get(name="teamPbi")
         oldSprint = Sprint.objects.create(goal = 'goalPbiold', team = team, start_date = timezone.now() - timedelta(days=20), end_date = timezone.now() - timedelta(days=10) )
         currentSprint = Sprint.objects.get(goal='goalPbi')
-        pbi = PbiForm(data={'sprint':oldSprint.id, 'snapshot_date': timezone.now() , 'pbi_type':'US', 'state':'NEW','story_points':0, 'local_id':'zero','title':'pbiForm','link':'http://pbiform.com','area':'forms','is_interruption':False})
+        
+        pbi = PbiForm(data={'sprint':oldSprint.id, 'snapshot_date': timezone.now().strftime("%Y-%m-%d" ) , 'pbi_type':'US', 'state':'NEW','story_points':0, 'local_id':'zero','title':'pbiForm','link':'http://pbiform.com','area':'forms','is_interruption':False})
         self.assertTrue(pbi.is_valid())
         pouet = pbi.save()
         self.assertEqual(pouet.sprint.id, currentSprint.id)
+        
+        #FUCKING SERIALIZER DO NOT USE FORM VALIDATION
+    def test_serilalizer_call_clean(self):
+        currentSprint = Sprint.objects.get(goal='goalPbi')
+        pbi = Pbi()
+        #area = 'area', link = 'http://plouf.com', local_id = 'lid', title = 'title', sprint = currentSprint, pbi_type = 'US', state = 'NEW', is_interruption = False, snapshot_date = date.today().strftime("%d %m %Y" ))
+        pbi.area = 'area'
+        pbi.link = 'http://plouf.com'
+        pbi.local_id = 'lid'
+        pbi.title = 'title'
+        pbi.sprint = currentSprint
+        pbi.pbi_type = 'US'
+        pbi.state = 'NEW'
+        pbi.is_interruption = False
+        pbi.snapshot_date = date.today().strftime("%Y-%m-%d" )
+        pbi.story_points = 33
+        
+        testreverse = reverse('burnDown:pbi_list')
+        serializer = PbiSerializer(instance=[pbi], many=True)
+#         serializer.is_valid()
+        response = client.post(testreverse, json.dumps(serializer.data), content_type="application/json" )
+        #response = client.post(testreverse, json.dumps([pouet]), content_type="application/json" )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+          
     
     
     def test_pbi_create_sprint_auto(self):    
@@ -149,7 +174,33 @@ class PbiTestCase(APITestCase):
         self.assertEqual(pouet.sprint.goal, 'GOAL UNDEFINED')
         
         self.assertEqual(len(mail.outbox), 1)
+     
+    def test_pbi_create_sprint_auto_rest(self):
+        comp = Company.objects.create(name="companyPbiTest555")
+        team = Team.objects.create(name="teamPbiTest", pouet = 555, company = comp)
+        sprint = Sprint.objects.create(goal = 'goalPbi', team = team, start_date = timezone.now() - timedelta(days=10), end_date = timezone.now() - timedelta(days=1) )
         
+        pbi = Pbi()
+        #area = 'area', link = 'http://plouf.com', local_id = 'lid', title = 'title', sprint = currentSprint, pbi_type = 'US', state = 'NEW', is_interruption = False, snapshot_date = date.today().strftime("%d %m %Y" ))
+        pbi.area = 'area'
+        pbi.link = 'http://plouf.com'
+        pbi.local_id = 'lid'
+        pbi.title = 'title'
+        pbi.sprint = sprint
+        pbi.pbi_type = 'US'
+        pbi.state = 'NEW'
+        pbi.is_interruption = False
+        pbi.snapshot_date = date.today().strftime("%Y-%m-%d" )
+        pbi.story_points = 33
+        
+        testreverse = reverse('burnDown:pbi_list')
+        serializer = PbiSerializer(instance=[pbi], many=True)
+#         serializer.is_valid()
+        response = client.post(testreverse, json.dumps(serializer.data), content_type="application/json" )
+        #response = client.post(testreverse, json.dumps([pouet]), content_type="application/json" )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        
+           
     def test_rest_get_serialized_pbis(self):
 #         pbisTested = Pbi.get_all_pbis()
 #         serializerTested = PbiSerializer(pbisTested, many=True)

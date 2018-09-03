@@ -249,9 +249,9 @@ def pbi_list(request):
                     
                 return HttpResponse(status=200)
         except Exception as e:
-            logger.error("EXCEPTION while batch insert pbis"+ e)
+            logger.error("EXCEPTION while batch insert pbis"+ str(e))
             return JsonResponse(e, status=400, safe=False)
-
+        return HttpResponse(status=400)
 
 #csrf_exempt should be renoved, add an aythent token
 @csrf_exempt
