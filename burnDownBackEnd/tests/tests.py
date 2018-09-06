@@ -12,14 +12,14 @@ import django
 from django.test import TestCase
 
 #from unittest import TestCase 
-from .models import Company, Team, Sprint, Pbi
-from .forms import SprintForm, PbiForm
+from ..models import Company, Team, Sprint, Pbi
+from ..forms import SprintForm, PbiForm
 from datetime import datetime, timedelta, date
 from django.utils import timezone
 import logging
 from django.test import Client
 from rest_framework.test import APIRequestFactory, APIClient, APITestCase
-from .serializers import CompanySerializer, PbiSerializer
+from ..serializers import CompanySerializer, PbiSerializer
 from django.db.models import Q
 from django.urls import reverse
 import json
@@ -50,38 +50,6 @@ class TeamTestCase(TestCase):
         self.assertEqual(team1.was_created_recently(), True)
         self.assertEqual(team1.name, "team1")
         
-class SprintTestCase(TestCase):
-    def setUp(self):
-        comp = Company.objects.create(name="company1")
-        team = Team.objects.create(name="team1", pouet = 444, company = comp)
-         
-    def test_start_date_before_end_date(self):
-        team = Team.objects.get(name="team1")
-
-#       #sprint = Sprint.objects.create(team = team, start_date = date.today() , end_date = date.today() - timedelta(days=1))
-        form = SprintForm(data={'goal' : 'goal1', 'team' : team.id, 'start_date' : timezone.now() , 'end_date' : timezone.now() - timedelta(days=1)})
-        self.assertFalse(form.is_valid())
-        self.assertEqual(
-            form.errors['__all__'],
-            ['start date cannot be after end date']
-        )
-        
-        form = SprintForm(data={'goal' : 'goal1', 'team' : team.id, 'start_date' : timezone.now() , 'end_date' : timezone.now() + timedelta(days=1)})
-        self.assertTrue(form.is_valid())
-     
-    def test_sprint_start_before_another_end(self):
-        team = Team.objects.get(name="team1")
-        form = SprintForm(data={'goal' : 'goal1', 'team' : team.id, 'start_date' : timezone.now() , 'end_date' : timezone.now() + timedelta(days=7)})
-        self.assertTrue(form.is_valid())
-        form.save()
-        
-        form = SprintForm(data={'goal' : 'goal1', 'team' : team.id, 'start_date' : timezone.now() + timedelta(days=5), 'end_date' : timezone.now() + timedelta(days=8)})
-        self.assertFalse(form.is_valid())
-        self.assertEqual(
-            form.errors['__all__'],
-            ['This sprint starts before another one finishes']
-        )
-
 
 # initialize the APIClient app
 client = Client()

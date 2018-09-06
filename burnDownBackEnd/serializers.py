@@ -6,6 +6,7 @@ from datetime import datetime, timedelta, date
 from django.core.mail import send_mail
 import logging
 from django.conf import settings
+import burnDownBackEnd.validators.pbi_validator as pbi_val
 
 logger = logging.getLogger(__name__)
 
@@ -41,10 +42,11 @@ class PbiSerializer(serializers.ModelSerializer):
 #         instance = Pbi(**data)
 #         instance.clean()
         #TODO change this to use the same validation as in the model
-        if data['snapshot_date'] == None:
-            data['snapshot_date'] = datetime.now()
-        elif data['snapshot_date'] >= (timezone.now() + timedelta(days=1)).date():
-            raise ValidationError('Pbi cannot be in the future')
+        data['snapshot_date'] = pbi_val.validate_snapshot_date(data['snapshot_date'])
+#         if data['snapshot_date'] == None:
+#             data['snapshot_date'] = datetime.now()
+#         elif data['snapshot_date'] >= (timezone.now() + timedelta(days=1)).date():
+#             raise ValidationError('Pbi cannot be in the future')
              
         if data['sprint'] == None:
             raise ValidationError('Sprint cannot be null')

@@ -7,6 +7,8 @@ from django.core.exceptions import ValidationError
 from django.core.mail import send_mail
 import logging
 from django.conf import settings
+#from mod1 import *
+import burnDownBackEnd.validators.pbi_validator as pbi_val
 
 # Create your models here.
 
@@ -49,8 +51,8 @@ class Sprint(models.Model):
         if self.start_date > self.end_date:
             raise ValidationError('start date cannot be after end date')
         #logger.debug(' start date '+self.start_date.strftime("%d %m %Y" ) + ' end date '+self.end_date.strftime("%d %m %Y" )+ 'team'+ self.team.name)
-        
-        if Sprint.objects.filter(end_date__gt=self.start_date, team=self.team).exclude(id=self.id).count() > 0 :
+
+        if Sprint.objects.filter(end_date__gt=self.start_date, start_date__lt=self.end_date, team=self.team).exclude(id=self.id).count() > 0 :
             raise ValidationError('This sprint starts before another one finishes')
      #                 if ( _local_id != None and _local_id != '' ) and ( _snapshot_date != None and _snapshot_date != ''):
 #                     Pbi.objects.filter(local_id=_local_id, snapshot_date=_snapshot_date).delete()            
@@ -86,11 +88,11 @@ class Pbi(models.Model):
     def clean(self):#called by django on form saving, not model saving
         super(Pbi, self).clean()
         # automatically create a sprint if it does not already exists.
-        
-        if self.snapshot_date == None:
-            self.snapshot_date = datetime.now()
-        elif self.snapshot_date >= (timezone.now() + timedelta(days=1)).date():
-            raise ValidationError('Pbi cannot be in the future')
+        self.snapshot_date = pbi_val.validate_snapshot_date(self.snapshot_date)
+#         if self.snapshot_date == None:
+#             self.snapshot_date = datetime.now()
+#         elif self.snapshot_date >= (timezone.now() + timedelta(days=1)).date():
+#             raise ValidationError('Pbi cannot be in the future')
              
         if self.sprint == None:
             raise ValidationError('Sprint cannot be null')
