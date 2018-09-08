@@ -11,15 +11,23 @@ admin.site.register(Team)
 @admin.register(Pbi)
 class PbiAdmin(admin.ModelAdmin):
 #     list_display = ('title' )
+    save_as = True
     list_filter = (
         ('sprint'),
         ('snapshot_date'),
     )
-    
+    search_fields = (
+       ('local_id'),
+       ('title'),
+    )
     
 @admin.register(Sprint)
 class SprintAdmin(admin.ModelAdmin):
+    save_as = True
 #     list_display = ('title' )
     list_filter = (
         ('team'),
+    )
+    search_fields = (
+       ('goal'),
     )

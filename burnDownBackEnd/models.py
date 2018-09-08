@@ -93,57 +93,9 @@ class Pbi(models.Model):
 #             self.snapshot_date = datetime.now()
 #         elif self.snapshot_date >= (timezone.now() + timedelta(days=1)).date():
 #             raise ValidationError('Pbi cannot be in the future')
-             
-        if self.sprint == None:
-            raise ValidationError('Sprint cannot be null')
-        logger.info(f"new PBI with sprint : {self.sprint} ")
-        sprt = Sprint.objects.get(id=self.sprint.id)
-        if sprt != None:
-#             si la date du pbi est en dehors du sprint
-            nbrDay = (sprt.end_date - sprt.start_date).days
-            if sprt.start_date >= self.snapshot_date or sprt.end_date <= self.snapshot_date:
-                #if pbi is outside this sprint, check if it exists a sprint with those dates/teams
-                sprint = Sprint.objects.filter(start_date__lte=self.snapshot_date, end_date__gte=self.snapshot_date, team__id=sprt.team.id)
-                if sprint != None and sprint.count() == 1:
-                    logger.info(f"Updating PBI : from sprint {self.sprint} to {sprint[0]}")
-                    self.sprint = sprint[0]
-                elif sprint.count() > 1:
-                    raise ValidationError('More than one active sprints at the same time for the same team')
-                else:
-                    #create new sprint
-                    #import here otherwise we will have an issue 
-                    from .forms import SprintForm
-                    sprintForm = SprintForm(data={'goal' : 'GOAL UNDEFINED', 'team' : sprt.team.id, 'start_date' : self.snapshot_date , 'end_date' : self.snapshot_date + timedelta(days=nbrDay)})
-                    if sprintForm.is_valid():
-                        newSprint = sprintForm.save()
-                        self.sprint = newSprint  
-                        #f"A new sprint has been created for team {sprt.team}, sprint id: {self.sprint.id}, start date: {self.sprint.start_date}, end date: {self.sprint.end_date}",
-                        logger.info(f"Updating PBI : new sprint created id: {newSprint.id} {newSprint}")
-                        send_mail(
-                            'New sprint automatically created',
-                            
-                            "A new sprint has been created for team "+ str(sprt.team)+", sprint id: "+str(self.sprint.id)+", start date: "+str(self.sprint.start_date)+", end date: "+str(self.sprint.end_date),
-                            settings.EMAIL_HOST_USER,
-                            settings.EMAIL_AVADOS_TO_EMAIL,
-                            fail_silently=False,
-                        )
-                    else:
-                        raise ValidationError('Invalid sprint'+str(self.sprint.id))
-                    
-                    
-        else:
-            raise ValidationError('Invalid sprint'+str(self.sprint.id))
-                    
-            #def __init__(self):
-#         self.isAddedInSprint = False
-#         self.title= 'pouet'
-#     @property
-#     def isAddedInSprint(self):
-#         return self._isAddedInSprint
-#     @isAddedInSprint.setter
-#     def isAddedInSprint(self, value):
-#         self._isAddedInSprint = value
-#     
+           
+        self.sprint = pbi_val.validate_pbi_sprint(self.sprint, self.snapshot_date)
+    
     def __str__(self):
         return self.local_id + ' - ' + self.title+ ' / ' + str(self.snapshot_date)
     
@@ -164,16 +116,3 @@ class Pbi(models.Model):
     def get_all_pbis():
         pbis = Pbi.objects.all().order_by('snapshot_date')
         return pbis
-        
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
