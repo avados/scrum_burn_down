@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"python.pythonPath": "${workspaceFolder}\\venvBurnDown\\Scripts\\python.exe",
+		"python.unitTest.unittestEnabled": true,
+		"python.unitTest.pyTestEnabled": false,
+		"python.unitTest.nosetestsEnabled": false,
+		"python.linting.pylintArgs": ["--load-plugins=pylint_django"],
+	}
+}
