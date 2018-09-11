@@ -141,8 +141,15 @@ th.active .arrow {
 </head>
 
 <body>
+<!--   if (window!=window.top) { /* I'm in a frame! */ }
+-->
+<div >
+  <a href="{% url 'burnDown:index' %}">< Back to home</a> | <a target="_blank" href="{{ request.get_full_path }}">Open in new tab </a>
+  
+</div>
 
-<a href="{% url 'burnDown:index' %}">Back to home</a>
+
+
 
     <div style="width:100%;">
         <canvas id="canvas"></canvas>
@@ -347,10 +354,12 @@ th.active .arrow {
                                            	{
                                             	_temp.Title = data[k].title;
                                            	}
-                                        	
+                                            
+                                            
                                         	_temp.Type = data[k].pbi_type;
                                         	_temp.state = data[k].state;
                                         	_temp.story_points = data[k].story_points;
+                                        	_temp.Edit = '<a target="_blank" href="{% url 'admin:index' %}burnDownBackEnd/pbi/'+data[k].id+'/change/">Edit</a>'
                                         	_tableData.push(_temp)
                                         	
                                         	//get our stats
@@ -411,7 +420,7 @@ th.active .arrow {
           el: '#demo',
           data: {
             searchQuery: '',
-            gridColumns: ['ID', 'story_points', 'Title','state','Type'],
+            gridColumns: ['ID', 'story_points', 'Title','state','Type','Edit'],
             gridData: [
               { }
             ]
