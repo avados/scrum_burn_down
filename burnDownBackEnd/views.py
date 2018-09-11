@@ -14,6 +14,7 @@ import logging, datetime
 from datetime import date, datetime, time, timedelta
 from rest_framework.decorators import api_view
 from .forms import SprintForm, PbiForm
+from django.shortcuts import redirect
 # Create your views here.
 
 logger = logging.getLogger(__name__)
@@ -39,7 +40,31 @@ def indexSprints(request):
             'sprints' : sprints,
         })
         
+def latest_sprint(request, team_id):
+    try:
+        team = Team.objects.get(pk=team_id)
+
+        if team is None:
+            return render(request, 'burnDown/indexBurnDown.html', {
+                'error_message': "Invalid team id.",
+            })
+
         
+        sprint = Sprint.objects.filter(team=team).order_by('-start_date')[:1]
+        
+        if sprint is None:
+            return render(request, 'burnDown/indexBurnDown.html', {
+                'error_message': "No sprint for team."+str(team),
+            })
+            
+        return redirect('burnDown:indexBurnDown',sprint_id=sprint[0].id)
+
+    except ObjectDoesNotExist:
+        return render(request, 'burnDown/indexBurnDown.html', {
+                'error_message': "Invalid team id.",
+            })
+
+
 def indexBurnDown(request, sprint_id):
     try:
         sprint = Sprint.objects.get(pk=sprint_id)

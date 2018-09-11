@@ -148,9 +148,9 @@ th.active .arrow {
   
 </div>
 
+{% if error_message %}<p><strong>{{ error_message }}</strong></p>
 
-
-
+{% else %}
     <div style="width:100%;">
         <canvas id="canvas"></canvas>
     </div>
@@ -432,6 +432,7 @@ th.active .arrow {
           };  
         */
     </script>
+    {% endif %}
 </body>
 
 </html>

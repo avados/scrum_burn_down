@@ -7,6 +7,7 @@ app_name = 'burnDown'
 urlpatterns = [
 	path('mytests/', views.mytests, name='mytests'),
 	path('indexBurnDown/<int:sprint_id>', views.indexBurnDown, name='indexBurnDown'),
+    path('indexBurnDown/latest/<int:team_id>', views.latest_sprint, name='latest'),
 	path('<int:company_id>/edit/', views.EditView, name='edit'),
 	path('<int:company_id>/validate/', views.ValidateView, name='validate'),
 	# ex: /polls/
