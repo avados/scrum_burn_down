@@ -56,8 +56,8 @@ def validate_pbi_sprint(sprint, snapshot_date):
                     return new_sprint 
                 else:
                     raise ValidationError('Invalid sprint'+str(new_sprint.id))
-                
-                
+        else:
+             return sprt    
     else:
         raise ValidationError('Invalid sprint'+str(sprint.id))
 

@@ -1,12 +1,12 @@
 from django.test import TestCase
-from ..models import Company, Team, Sprint, Pbi
-from ..forms import SprintForm, PbiForm
+from  burnDownBackEnd.models import Company, Team, Sprint, Pbi
+from  burnDownBackEnd.forms import SprintForm, PbiForm
 from datetime import datetime, timedelta, date
 from django.utils import timezone
 import logging
 from django.test import Client
 from rest_framework.test import APIRequestFactory, APIClient, APITestCase
-from ..serializers import CompanySerializer, PbiSerializer
+from  burnDownBackEnd.serializers import CompanySerializer, PbiSerializer
 from django.db.models import Q
 from django.urls import reverse
 import json

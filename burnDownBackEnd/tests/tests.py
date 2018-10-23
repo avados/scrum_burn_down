@@ -1,25 +1,47 @@
 #needed by visual studio
-import os
-import django
-
 #import django.test.utils
 #django.setup()
 #django.test.utils.setup_test_environment()
 #django.test.utils.setup_databases()
 
+from django.conf import settings
+from django.test.utils import get_runner
+# import unittest
+# from unittest import TestCase 
+
+# if __name__ == "__main__":
+#     os.environ['DJANGO_SETTINGS_MODULE'] = 'tests.test_settings'
+#     django.setup()
+#     TestRunner = get_runner(settings)
+#     test_runner = TestRunner()
+#     failures = test_runner.run_tests(["tests"])
+#     sys.exit(bool(failures))
+
+
+# the 4 following lines are mandatory to execute tests 
+import django
+import os
+#add this if you want to run all tests in one shot
+# if __name__ == "__main__":
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'tests_settings')
+django.setup()
+TestRunner = get_runner(settings)
+test_runner = TestRunner()
+failures = test_runner.run_tests(["tests"])
+# sys.exit(bool(failures))
 
 ########################
 from django.test import TestCase
 
 #from unittest import TestCase 
-from ..models import Company, Team, Sprint, Pbi
-from ..forms import SprintForm, PbiForm
+from burnDownBackEnd.models import Company, Team, Sprint, Pbi
+from burnDownBackEnd.forms import SprintForm, PbiForm
 from datetime import datetime, timedelta, date
 from django.utils import timezone
 import logging
 from django.test import Client
 from rest_framework.test import APIRequestFactory, APIClient, APITestCase
-from ..serializers import CompanySerializer, PbiSerializer
+from burnDownBackEnd.serializers import CompanySerializer, PbiSerializer
 from django.db.models import Q
 from django.urls import reverse
 import json
@@ -27,18 +49,20 @@ from rest_framework import status
 from django.core import mail
 
 
+
+
 # Create your tests here.
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG)
 
-class CompanyTestCase(TestCase):
+class Test_CompanyTestCase(TestCase):
     def setUp(self):
         #Team.objects.create(name="team1", pouet = 444)
         Company.objects.create(name="company1")
     
     def test_company_created(self):
         comp = Company.objects.get(name="company1")
-        self.assertTrue(comp.name , "company1")
+        self.assertTrue(comp.name, "company1")
 
 class TeamTestCase(TestCase):
     def setUp(self):
@@ -49,6 +73,7 @@ class TeamTestCase(TestCase):
         team1 = Team.objects.get(name="team1")
         self.assertEqual(team1.was_created_recently(), True)
         self.assertEqual(team1.name, "team1")
+        
         
 
 # initialize the APIClient app
@@ -62,13 +87,11 @@ class PbiTestCase(APITestCase):
         comp = Company.objects.create(name="companyPbiTest")
         team = Team.objects.create(name="teamPbi", pouet = 444, company = comp)
         sprint = Sprint.objects.create(goal = 'goalPbi', team = team, start_date = timezone.now() , end_date = timezone.now() + timedelta(days=7) )
-        
         pbi1 = Pbi.objects.create(sprint = sprint, pbi_type = "US", state = "NEW", story_points = 5, local_id = "one", title ="title 1", link = "http://link1.com", area= "area1")
         pbi2 = Pbi.objects.create(sprint = sprint, pbi_type = "US", state = "NEW", story_points = 5, local_id = "two", title ="title 2", link = "http://link2.com", area= "area1")
 #         sprintForm = SprintForm(data={'goal' : 'goalPbi', 'team' : team.id, 'start_date' : timezone.now() , 'end_date' : timezone.now() + timedelta(days=7)})
 #         self.assertTrue(sprintForm.is_valid())
 #         sprintForm.save()
-
 
     def test_pbi_form(self):
         sprint = Sprint.objects.get(goal='goalPbi')
