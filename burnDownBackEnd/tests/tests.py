@@ -23,11 +23,11 @@ import django
 import os
 #add this if you want to run all tests in one shot
 # if __name__ == "__main__":
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'tests_settings')
-django.setup()
-TestRunner = get_runner(settings)
-test_runner = TestRunner()
-failures = test_runner.run_tests(["tests"])
+# os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'tests_settings')
+# django.setup()
+# TestRunner = get_runner(settings)
+# test_runner = TestRunner()
+# failures = test_runner.run_tests(["tests"])
 # sys.exit(bool(failures))
 
 ########################
